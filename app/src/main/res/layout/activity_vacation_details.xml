@@ -44,25 +44,26 @@
                 android:gravity="center">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="Vacation Title"
+                    android:layout_weight="1"
+                    android:text="Vacation Name"
                     android:textAlignment="viewStart"
                     android:textColor="#FDFCF8"
                     android:textSize="20sp" />
 
                 <EditText
                     android:id="@+id/edit_vacationName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="#FBF8EF"
                     android:hint="Dallas Trip"
                     android:minWidth="300dp"
                     android:minHeight="48dp"
                     android:padding="5dp"
-                    android:textColor="#27523D"
                     android:textSize="20sp" />
             </LinearLayout>
             <LinearLayout
@@ -72,9 +73,10 @@
                 android:gravity="center">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
+                    android:layout_weight="1"
                     android:text="Hotel Name"
                     android:textAlignment="viewStart"
                     android:textColor="#FDFCF8"
@@ -82,15 +84,15 @@
 
                 <EditText
                     android:id="@+id/edit_hotelName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="#FBF8EF"
                     android:hint="Omni Dallas Hotel"
                     android:minWidth="300dp"
                     android:minHeight="48dp"
                     android:padding="5dp"
-                    android:textColor="#27523D"
                     android:textSize="20sp" />
             </LinearLayout>
             <LinearLayout
@@ -100,8 +102,9 @@
                 android:gravity="center">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:text="Start Date"
                     android:textAlignment="viewStart"
@@ -110,15 +113,15 @@
 
                 <EditText
                     android:id="@+id/edit_startDate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="#FBF8EF"
                     android:hint="02/17/2024"
                     android:minWidth="300dp"
                     android:minHeight="48dp"
                     android:padding="5dp"
-                    android:textColor="#27523D"
                     android:textSize="20sp" />
             </LinearLayout>
             <LinearLayout
@@ -128,8 +131,9 @@
                 android:gravity="center">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:text="End Date"
                     android:textAlignment="viewStart"
@@ -138,7 +142,8 @@
 
                 <EditText
                     android:id="@+id/edit_endDate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:background="#FBF8EF"
@@ -146,7 +151,6 @@
                     android:minWidth="300dp"
                     android:minHeight="48dp"
                     android:padding="5dp"
-                    android:textColor="#27523D"
                     android:textSize="20sp" />
             </LinearLayout>
 

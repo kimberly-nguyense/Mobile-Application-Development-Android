@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,7 +38,7 @@ public class VacationDetails extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_vacation_detail);
+        setContentView(R.layout.activity_vacation_details);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -67,6 +65,7 @@ public class VacationDetails extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.floatingActionButton_addExcursion);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
+            intent.putExtra("vacationID", vacationID);
             startActivity(intent);
         });
 
@@ -130,5 +129,16 @@ public class VacationDetails extends AppCompatActivity {
         }
 
         return true;
+    }
+    @Override
+    protected void onResume() {
+        // After updating ExcursionDetails, refresh ExcursionDetails
+        super.onResume();
+        List<Excursion> filteredExcursions = repository.getAssociatedExcursions(vacationID);
+        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
+        RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
+        recyclerView.setAdapter(excursionAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        excursionAdapter.setExcursions(filteredExcursions);
     }
 }

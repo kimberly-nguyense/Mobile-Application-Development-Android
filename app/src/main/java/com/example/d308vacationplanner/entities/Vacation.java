@@ -5,13 +5,6 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "Vacations")
 public class Vacation {
-    @PrimaryKey(autoGenerate = true)
-    private int vacationID;
-    private String vacationName;
-    private String hotelName;
-    private String startDate;
-    private String endDate;
-
     public String getVacationName() {
         return vacationName;
     }
@@ -28,11 +21,11 @@ public class Vacation {
         this.hotelName = hotelName;
     }
 
-    public int getVacationID() {
+    public int getvacationID() {
         return vacationID;
     }
 
-    public void setVacationID(int vacationID) {
+    public void setvacationID(int vacationID) {
         this.vacationID = vacationID;
     }
 
@@ -44,6 +37,15 @@ public class Vacation {
         this.endDate = endDate;
     }
 
+    public void setVacationID(int vacationID) {
+        this.vacationID = vacationID;
+    }
+
+    @PrimaryKey(autoGenerate = true)
+    private int vacationID;
+    private String vacationName;
+    private String hotelName;
+
     public String getStartDate() {
         return startDate;
     }
@@ -52,12 +54,21 @@ public class Vacation {
         this.startDate = startDate;
     }
 
+    private String startDate;
+
     public String getEndDate() {
         return endDate;
     }
 
     public void setEndDate(String endDate) {
         this.endDate = endDate;
+    }
+
+    private String endDate;
+
+
+    public int getVacationID() {
+        return vacationID;
     }
 
 }

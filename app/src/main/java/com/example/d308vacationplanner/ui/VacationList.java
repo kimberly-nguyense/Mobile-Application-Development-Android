@@ -58,19 +58,23 @@ public class VacationList extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.refresh) {
+            Toast.makeText(VacationList.this, "Refreshed", Toast.LENGTH_SHORT).show();
+            onResume();
+        }
         if (item.getItemId() == R.id.add_sample_data) {
             repository = new Repository(getApplication());
 
             Vacation vacation = new Vacation(0,"Dallas","Marriott","05/23/2024", "06/15/2024");
             repository.insert(vacation);
-            vacation = new Vacation(1,"Carrollton","Courtyard", "05/23/2024", "06/15/2024");
+            vacation = new Vacation(0,"Carrollton","Courtyard", "05/23/2024", "06/15/2024");
             repository.insert(vacation);
 
-            Excursion excursion = new Excursion(0,"Museum","05/23/2024",0);
+            Excursion excursion = new Excursion(0,"Museum","05/23/2024",1,"Museum of Art");
             repository.insert(excursion);
-            excursion = new Excursion(1,"Art Gallery","06/15/2024",0);
+            excursion = new Excursion(0,"Art Gallery","06/15/2024",1, "Art Gallery of Dallas");
             repository.insert(excursion);
-            excursion = new Excursion(2,"KBBQ","12/01/2025",1);
+            excursion = new Excursion(0,"KBBQ","12/01/2025",2, "Gen's KBBQ");
             repository.insert(excursion);
 
             Toast.makeText(VacationList.this, "Sample Data Added", Toast.LENGTH_SHORT).show();
