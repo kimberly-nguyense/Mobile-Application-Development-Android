@@ -84,7 +84,7 @@ public class VacationDetails extends AppCompatActivity {
         // Set up Recycler View to show excursions associated with vacation
         RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
         repository = new Repository(getApplication());
-        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
+        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this, repository);
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         List<Excursion> filteredExcursions = repository.getAssociatedExcursions(vacationID);
@@ -220,7 +220,7 @@ public class VacationDetails extends AppCompatActivity {
         // After updating ExcursionDetails, refresh ExcursionDetails
         super.onResume();
         List<Excursion> filteredExcursions = repository.getAssociatedExcursions(vacationID);
-        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
+        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this, repository);
         RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

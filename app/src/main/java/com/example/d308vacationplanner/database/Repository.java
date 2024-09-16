@@ -40,6 +40,10 @@ public class Repository {
         return mAllVacations;
     }
 
+    public Vacation getVacation(int vacationID) {
+        return mVacationDAO.getVacation(vacationID);
+    }
+
     public void insert(Vacation vacation){
         databaseWriteExecutor.execute(() -> {
             mVacationDAO.insert(vacation);

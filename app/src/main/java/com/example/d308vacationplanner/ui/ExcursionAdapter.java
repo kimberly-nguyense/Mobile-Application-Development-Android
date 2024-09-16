@@ -11,7 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.d308vacationplanner.R;
+import com.example.d308vacationplanner.database.Repository;
 import com.example.d308vacationplanner.entities.Excursion;
+import com.example.d308vacationplanner.entities.Vacation;
 
 import java.util.List;
 
@@ -19,10 +21,12 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
     private List<Excursion> mExcursions;
     private final Context context;
     private final LayoutInflater mInflater;
+    private final Repository repository;
 
-    public ExcursionAdapter(Context context) {
+    public ExcursionAdapter(Context context, Repository repository) {
         mInflater = LayoutInflater.from(context);
         this.context = context;
+        this.repository = repository;
     }
 
     public class ExcursionViewHolder extends RecyclerView.ViewHolder {
@@ -42,6 +46,13 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
                 intent.putExtra("excursionDate", excursion.getExcursionDate());
                 intent.putExtra("vacationID", excursion.getVacationID());
                 intent.putExtra("excursionNote", excursion.getNote());
+                Vacation vacation = repository.getVacation(excursion.getVacationID());
+                if(vacation != null){
+                    String vacationStartDate = vacation.getStartDate();
+                    String vacationEndDate = vacation.getEndDate();
+                    intent.putExtra("vacationStart", vacationStartDate);
+                    intent.putExtra("vacationEnd", vacationEndDate);
+                }
                 context.startActivity(intent);
             });
         }

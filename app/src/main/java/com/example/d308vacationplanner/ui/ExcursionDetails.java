@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.activity.EdgeToEdge;
@@ -32,6 +33,8 @@ public class ExcursionDetails extends AppCompatActivity {
     String note;
     int excursionID;
     int vacationID;
+    String vacationStart;
+    String vacationEnd;
     EditText editName;
     TextView editDate;
     EditText editNote;
@@ -108,6 +111,28 @@ public class ExcursionDetails extends AppCompatActivity {
         return true;
     }
 
+    public int checkValidDate(){
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+        String excursionDate = editDate.getText().toString();
+        String startDate = vacationStart;
+        String endDate = vacationEnd;
+
+        try{
+            Date start = sdf.parse(startDate);
+            Date end = sdf.parse(endDate);
+            if(start.after(end)){
+                Toast.makeText(ExcursionDetails.this, "Error: Start date must be before end date", Toast.LENGTH_SHORT).show();
+                return -1;
+            }
+        } catch (ParseException e) {
+            Toast.makeText(ExcursionDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
+            return -1;
+        }
+        return 0;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Excursion excursion;
@@ -128,8 +153,10 @@ public class ExcursionDetails extends AppCompatActivity {
             finish();
         }
         if (item.getItemId() == R.id.save_excursion) {
+            if (checkValidDate() == -1){
+            }
             // If new excursion, get next excursion ID and create new excursion from input fields
-            if (excursionID == -1) {
+            else if (excursionID == -1) {
                 if (repository.getmAllExcursions().size() == 0) {
                     excursionID = 1;
                 } else {

@@ -74,7 +74,7 @@ public class VacationList extends AppCompatActivity {
             repository.insert(excursion);
             excursion = new Excursion(0,"Art Gallery","06/15/2024",1, "Art Gallery of Dallas");
             repository.insert(excursion);
-            excursion = new Excursion(0,"KBBQ","12/01/2025",2, "Gen's KBBQ");
+            excursion = new Excursion(0,"KBBQ","05/28/2024",2, "Gen's KBBQ");
             repository.insert(excursion);
 
             Toast.makeText(VacationList.this, "Sample Data Added", Toast.LENGTH_SHORT).show();
