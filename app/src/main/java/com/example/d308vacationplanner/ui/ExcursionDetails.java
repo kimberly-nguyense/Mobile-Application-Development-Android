@@ -1,10 +1,13 @@
 package com.example.d308vacationplanner.ui;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Intent;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 import androidx.activity.EdgeToEdge;
@@ -16,7 +19,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.d308vacationplanner.R;
 import com.example.d308vacationplanner.database.Repository;
 import com.example.d308vacationplanner.entities.Excursion;
-import com.example.d308vacationplanner.entities.Vacation;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ExcursionDetails extends AppCompatActivity {
     Repository repository;
@@ -26,8 +33,11 @@ public class ExcursionDetails extends AppCompatActivity {
     int excursionID;
     int vacationID;
     EditText editName;
-    EditText editDate;
+    TextView editDate;
     EditText editNote;
+
+    DatePickerDialog.OnDateSetListener startDate;
+    final Calendar myCalendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +62,44 @@ public class ExcursionDetails extends AppCompatActivity {
         note = getIntent().getStringExtra("excursionNote");
         editNote = findViewById(R.id.edit_excursionNote);
         editNote.setText(note);
+
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+        editDate.setOnClickListener(view -> {
+
+            Date date;
+            String info = editDate.getText().toString();
+            if(info.equals("")){
+                info = sdf.format(Calendar.getInstance().getTime());
+            }
+            try{
+                myCalendar.setTime(sdf.parse(info));
+            }
+            catch (ParseException e){
+                e.printStackTrace();
+            }
+            new DatePickerDialog(ExcursionDetails.this,
+                    startDate,
+                    myCalendar.get(Calendar.YEAR),
+                    myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+        });
+        startDate = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, month);
+                myCalendar.set(Calendar.DAY_OF_MONTH, day);
+                updateLabelStartDate();
+            }
+        };
+    }
+
+    public void updateLabelStartDate() {
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+        editDate.setText(sdf.format(myCalendar.getTime()));
     }
 
     @Override
@@ -66,7 +114,8 @@ public class ExcursionDetails extends AppCompatActivity {
         repository = new Repository(getApplication());
         if (item.getItemId() == R.id.share_details) {
             Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.putExtra(Intent.EXTRA_TEXT, editNote.getText().toString() + "Excursion Name: " + name + "Excursion Date: \" + date");
+            intent.putExtra(Intent.EXTRA_TEXT, editNote.getText().toString()
+                    /* + "Excursion Name: " + name + "Excursion Date: \" + date"*/);
             intent.setType("text/plain");
 
             Intent shareIntent = Intent.createChooser(intent, null);
