@@ -36,7 +36,7 @@ public class ExcursionDetails extends AppCompatActivity {
     TextView editDate;
     EditText editNote;
 
-    DatePickerDialog.OnDateSetListener startDate;
+    DatePickerDialog.OnDateSetListener dateListener;
     final Calendar myCalendar = Calendar.getInstance();
 
     @Override
@@ -80,23 +80,23 @@ public class ExcursionDetails extends AppCompatActivity {
                 e.printStackTrace();
             }
             new DatePickerDialog(ExcursionDetails.this,
-                    startDate,
+                    dateListener,
                     myCalendar.get(Calendar.YEAR),
                     myCalendar.get(Calendar.MONTH),
                     myCalendar.get(Calendar.DAY_OF_MONTH)).show();
         });
-        startDate = new DatePickerDialog.OnDateSetListener() {
+        dateListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, month);
                 myCalendar.set(Calendar.DAY_OF_MONTH, day);
-                updateLabelStartDate();
+                updateLabelDate();
             }
         };
     }
 
-    public void updateLabelStartDate() {
+    public void updateLabelDate() {
         String dateFormat = "MM/dd/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
         editDate.setText(sdf.format(myCalendar.getTime()));

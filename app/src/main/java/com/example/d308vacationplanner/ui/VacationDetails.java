@@ -1,10 +1,14 @@
 package com.example.d308vacationplanner.ui;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +24,10 @@ import com.example.d308vacationplanner.entities.Excursion;
 import com.example.d308vacationplanner.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class VacationDetails extends AppCompatActivity {
@@ -30,9 +38,13 @@ public class VacationDetails extends AppCompatActivity {
     int vacationID;
     EditText edit_vacationName;
     EditText edit_hotelName;
-    EditText edit_startDate;
-    EditText edit_endDate;
+    TextView edit_startDate;
+    TextView edit_endDate;
     Repository repository;
+
+    DatePickerDialog.OnDateSetListener startDateListener;
+    DatePickerDialog.OnDateSetListener endDateListener;
+    final Calendar myCalendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +89,56 @@ public class VacationDetails extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         List<Excursion> filteredExcursions = repository.getAssociatedExcursions(vacationID);
         excursionAdapter.setExcursions(filteredExcursions);
+
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+        edit_startDate.setOnClickListener(view -> {
+            Date date;
+            new DatePickerDialog(VacationDetails.this,
+                    startDateListener,
+                    myCalendar.get(Calendar.YEAR),
+                    myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+        });
+        startDateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, month);
+                myCalendar.set(Calendar.DAY_OF_MONTH, day);
+                updateLabelStartDate();
+            }
+        };
+
+        edit_endDate.setOnClickListener(view -> {
+            Date date;
+            new DatePickerDialog(VacationDetails.this,
+                    endDateListener,
+                    myCalendar.get(Calendar.YEAR),
+                    myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+        });
+        endDateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, month);
+                myCalendar.set(Calendar.DAY_OF_MONTH, day);
+                updateLabelEndDate();
+            }
+        };
+    }
+
+    public void updateLabelStartDate() {
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+        edit_startDate.setText(sdf.format(myCalendar.getTime()));
+    }
+    public void updateLabelEndDate() {
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+        edit_endDate.setText(sdf.format(myCalendar.getTime()));
     }
 
     @Override
@@ -85,12 +147,35 @@ public class VacationDetails extends AppCompatActivity {
         return true;
     }
 
+    public int checkValidDate(){
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+        String startDate = edit_startDate.getText().toString();
+        String endDate = edit_endDate.getText().toString();
+
+        try{
+            Date start = sdf.parse(startDate);
+            Date end = sdf.parse(endDate);
+            if(start.after(end)){
+                Toast.makeText(VacationDetails.this, "Error: Start date must be before end date", Toast.LENGTH_SHORT).show();
+                return -1;
+            }
+        } catch (ParseException e) {
+            Toast.makeText(VacationDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
+            return -1;
+        }
+        return 0;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Vacation vacation;
         if (item.getItemId() == R.id.save_vacation) {
+            if (checkValidDate() == -1){
+            }
             // If new vacation, get next vacation ID and create new vacation from input fields
-            if (vacationID == -1) {
+            else if (vacationID == -1 ) {
                 if (repository.getmAllVacations().size() == 0) {
                     vacationID = 1;
                 }
