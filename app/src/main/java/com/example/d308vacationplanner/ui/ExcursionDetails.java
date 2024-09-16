@@ -66,6 +66,9 @@ public class ExcursionDetails extends AppCompatActivity {
         editNote = findViewById(R.id.edit_excursionNote);
         editNote.setText(note);
 
+        vacationStart = getIntent().getStringExtra("vacationStart");
+        vacationEnd = getIntent().getStringExtra("vacationEnd");
+
         String dateFormat = "MM/dd/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 
@@ -118,18 +121,27 @@ public class ExcursionDetails extends AppCompatActivity {
         String excursionDate = editDate.getText().toString();
         String startDate = vacationStart;
         String endDate = vacationEnd;
+        if (excursionDate == null || excursionDate.isEmpty() ||
+                startDate == null || startDate.isEmpty() ||
+                endDate == null || endDate.isEmpty()) {
+
+            Toast.makeText(ExcursionDetails.this, "Date fields cannot be empty", Toast.LENGTH_SHORT).show();
+            return -1;
+        }
 
         try{
+            Date date = sdf.parse(excursionDate);
             Date start = sdf.parse(startDate);
             Date end = sdf.parse(endDate);
-            if(start.after(end)){
-                Toast.makeText(ExcursionDetails.this, "Error: Start date must be before end date", Toast.LENGTH_SHORT).show();
+            if(date.before(start) || date.after(end)){
+                Toast.makeText(ExcursionDetails.this, "Error: Excursion must be between Vacation start and end dates.", Toast.LENGTH_SHORT).show();
                 return -1;
             }
         } catch (ParseException e) {
             Toast.makeText(ExcursionDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
             return -1;
         }
+        Toast.makeText(ExcursionDetails.this, "Saving Excursion", Toast.LENGTH_SHORT).show();
         return 0;
     }
 
@@ -166,6 +178,7 @@ public class ExcursionDetails extends AppCompatActivity {
                             editDate.getText().toString(), vacationID,
                             editNote.getText().toString()
                     );
+                    Toast.makeText(ExcursionDetails.this, "Adding Excursion", Toast.LENGTH_SHORT).show();
                     repository.insert(excursion);
                     this.finish();
                 }
@@ -175,6 +188,7 @@ public class ExcursionDetails extends AppCompatActivity {
                         editDate.getText().toString(), vacationID,
                         editNote.getText().toString()
                 );
+                Toast.makeText(ExcursionDetails.this, "Updating Excursion", Toast.LENGTH_SHORT).show();
                 repository.update(excursion);
                 this.finish();
             }
@@ -185,6 +199,7 @@ public class ExcursionDetails extends AppCompatActivity {
                     editDate.getText().toString(), vacationID,
                     editNote.getText().toString()
             );
+            Toast.makeText(ExcursionDetails.this, "Deleting Excursion", Toast.LENGTH_SHORT).show();
             repository.delete(excursion);
             this.finish();
         }

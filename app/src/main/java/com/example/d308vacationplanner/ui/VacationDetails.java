@@ -154,6 +154,11 @@ public class VacationDetails extends AppCompatActivity {
         String startDate = edit_startDate.getText().toString();
         String endDate = edit_endDate.getText().toString();
 
+        if(startDate == null || startDate.isEmpty() || endDate == null || endDate.isEmpty()){
+            Toast.makeText(VacationDetails.this, "Date fields cannot be empty", Toast.LENGTH_SHORT).show();
+            return -1;
+        }
+
         try{
             Date start = sdf.parse(startDate);
             Date end = sdf.parse(endDate);
@@ -165,6 +170,7 @@ public class VacationDetails extends AppCompatActivity {
             Toast.makeText(VacationDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
             return -1;
         }
+        Toast.makeText(VacationDetails.this, "Saving Vacation", Toast.LENGTH_SHORT).show();
         return 0;
     }
 
@@ -181,14 +187,15 @@ public class VacationDetails extends AppCompatActivity {
                 }
                 else {
                     vacationID = repository.getmAllVacations().get(repository.getmAllVacations().size() - 1).getVacationID() + 1;
-                    vacation = new Vacation(vacationID,
-                            edit_vacationName.getText().toString(),
-                            edit_hotelName.getText().toString(),
-                            edit_startDate.getText().toString(),
-                            edit_endDate.getText().toString());
-                    repository.insert(vacation);
-                    this.finish();
                 }
+                vacation = new Vacation(vacationID,
+                        edit_vacationName.getText().toString(),
+                        edit_hotelName.getText().toString(),
+                        edit_startDate.getText().toString(),
+                        edit_endDate.getText().toString());
+                Toast.makeText(VacationDetails.this, "Adding Vacation", Toast.LENGTH_SHORT).show();
+                repository.insert(vacation);
+                this.finish();
             }
             else{
                 vacation = new Vacation(vacationID,
@@ -196,18 +203,26 @@ public class VacationDetails extends AppCompatActivity {
                         edit_hotelName.getText().toString(),
                         edit_startDate.getText().toString(),
                         edit_endDate.getText().toString());
+                Toast.makeText(VacationDetails.this, "Updating Vacation", Toast.LENGTH_SHORT).show();
                 repository.update(vacation);
                 this.finish();
             }
         }
         if (item.getItemId() == R.id.delete_vacation) {
-            vacation = new Vacation(vacationID,
-                    edit_vacationName.getText().toString(),
-                    edit_hotelName.getText().toString(),
-                    edit_startDate.getText().toString(),
-                    edit_endDate.getText().toString());
-            repository.delete(vacation);
-            this.finish();
+            List<Excursion> associatedExcursions = repository.getAssociatedExcursions(vacationID);
+            if(!associatedExcursions.isEmpty()){
+                Toast.makeText(VacationDetails.this, "Cannot delete vacation with associated excursions", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                vacation = new Vacation(vacationID,
+                        edit_vacationName.getText().toString(),
+                        edit_hotelName.getText().toString(),
+                        edit_startDate.getText().toString(),
+                        edit_endDate.getText().toString());
+                Toast.makeText(VacationDetails.this, "Deleting Vacation", Toast.LENGTH_SHORT).show();
+                repository.delete(vacation);
+                this.finish();
+            }
         }
         if (item.getItemId() == android.R.id.home) {
             finish();
