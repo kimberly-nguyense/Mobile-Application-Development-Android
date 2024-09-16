@@ -153,8 +153,8 @@ public class ExcursionDetails extends AppCompatActivity {
         repository = new Repository(getApplication());
         if (item.getItemId() == R.id.share_details) {
             Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.putExtra(Intent.EXTRA_TEXT, editNote.getText().toString()
-                    /* + "Excursion Name: " + name + "Excursion Date: \" + date"*/);
+            intent.putExtra(Intent.EXTRA_TEXT, "Excursion Name: " + name + "\nExcursion Date: " + date + "\n\n"+editNote.getText().toString()
+                     );
             intent.setType("text/plain");
 
             Intent shareIntent = Intent.createChooser(intent, null);
