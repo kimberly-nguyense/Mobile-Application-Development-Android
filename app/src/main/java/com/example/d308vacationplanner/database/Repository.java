@@ -2,47 +2,47 @@ package com.example.d308vacationplanner.database;
 
 import android.app.Application;
 
-import com.example.d308vacationplanner.dao.PartDAO;
-import com.example.d308vacationplanner.dao.ProductDAO;
-import com.example.d308vacationplanner.entities.Part;
-import com.example.d308vacationplanner.entities.Product;
+import com.example.d308vacationplanner.dao.ExcursionDAO;
+import com.example.d308vacationplanner.dao.VacationDAO;
+import com.example.d308vacationplanner.entities.Excursion;
+import com.example.d308vacationplanner.entities.Vacation;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Repository {
-    private final ProductDAO mProductDAO;
-    private final PartDAO mPartDAO;
+    private final VacationDAO mVacationDAO;
+    private final ExcursionDAO mExcursionDAO;
 
-    private List<Product> mAllProducts;
-    private List<Part> mAllParts;
+    private List<Vacation> mAllVacations;
+    private List<Excursion> mAllExcursions;
 
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     public Repository(Application application){
-        BicycleDatabaseBuilder db = BicycleDatabaseBuilder.getDatabase(application);
-        mProductDAO = db.productDAO();
-        mPartDAO = db.partDAO();
+        VacationDatabaseBuilder db = VacationDatabaseBuilder.getDatabase(application);
+        mVacationDAO = db.VacationDAO();
+        mExcursionDAO = db.ExcursionDAO();
     }
 
-    public List<Product> getmAllProducts(){
+    public List<Vacation> getmAllVacations(){
         databaseWriteExecutor.execute(() -> {
-            mAllProducts = mProductDAO.getAllProducts();
+            mAllVacations = mVacationDAO.getAllVacations();
         });
         try{
             Thread.sleep(1000);
         }catch (InterruptedException e){
             throw new RuntimeException(e);
         }
-        return mAllProducts;
+        return mAllVacations;
     }
 
-    public void insert(Product product){
+    public void insert(Vacation vacation){
         databaseWriteExecutor.execute(() -> {
-            mProductDAO.insert(product);
+            mVacationDAO.insert(vacation);
         });
         try{
             Thread.sleep(1000);
@@ -51,9 +51,9 @@ public class Repository {
         }
     }
 
-    public void update(Product product){
+    public void update(Vacation vacation){
         databaseWriteExecutor.execute(() -> {
-            mProductDAO.update(product);
+            mVacationDAO.update(vacation);
         });
         try{
             Thread.sleep(1000);
@@ -62,9 +62,9 @@ public class Repository {
         }
     }
 
-    public void delete(Product product){
+    public void delete(Vacation vacation){
         databaseWriteExecutor.execute(() -> {
-            mProductDAO.delete(product);
+            mVacationDAO.delete(vacation);
         });
         try{
             Thread.sleep(1000);
@@ -73,33 +73,33 @@ public class Repository {
         }
     }
 
-    public List<Part> getmAllParts(){
+    public List<Excursion> getmAllExcursions(){
         databaseWriteExecutor.execute(() -> {
-            mAllParts = mPartDAO.getAllParts();
+            mAllExcursions = mExcursionDAO.getAllExcursions();
         });
         try{
             Thread.sleep(1000);
         }catch (InterruptedException e){
             throw new RuntimeException(e);
         }
-        return mAllParts;
+        return mAllExcursions;
     }
 
-    public List<Part> getAssociatedParts(int productID){
+    public List<Excursion> getAssociatedExcursions(int vacationID){
         databaseWriteExecutor.execute(() -> {
-            mAllParts = mPartDAO.getAssociatedParts(productID);
+            mAllExcursions = mExcursionDAO.getAssociatedExcursions(vacationID);
         });
         try{
             Thread.sleep(1000);
         }catch (InterruptedException e){
             throw new RuntimeException(e);
         }
-        return mAllParts;
+        return mAllExcursions;
     }
 
-    public void insert(Part part){
+    public void insert(Excursion excursion){
         databaseWriteExecutor.execute(() -> {
-            mPartDAO.insert(part);
+            mExcursionDAO.insert(excursion);
         });
         try{
             Thread.sleep(1000);
@@ -107,9 +107,9 @@ public class Repository {
             e.printStackTrace();
         }
     }
-    public void update(Part part){
+    public void update(Excursion excursion){
         databaseWriteExecutor.execute(() -> {
-            mPartDAO.update(part);
+            mExcursionDAO.update(excursion);
         });
         try{
             Thread.sleep(1000);
@@ -118,9 +118,9 @@ public class Repository {
         }
     }
 
-    public void delete(Part part){
+    public void delete(Excursion excursion){
         databaseWriteExecutor.execute(() -> {
-            mPartDAO.delete(part);
+            mExcursionDAO.delete(excursion);
         });
         try{
             Thread.sleep(1000);

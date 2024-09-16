@@ -70,13 +70,14 @@ public class VacationDetails extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Set up Recycler View to show excursions associated with vacation
         RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
         repository = new Repository(getApplication());
-        List<Excursion> allExcursions = repository.getmAllExcursions();
         final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        excursionAdapter.setExcursions(allExcursions);
+        List<Excursion> filteredExcursions = repository.getAssociatedExcursions(vacationID);
+        excursionAdapter.setExcursions(filteredExcursions);
     }
 
     @Override
@@ -129,16 +130,5 @@ public class VacationDetails extends AppCompatActivity {
         }
 
         return true;
-    }
-    @Override
-    protected void onResume() {
-        // After updating VacationDetails, reopen VacationList
-        super.onResume();
-        List<Vacation> allVacations = repository.getmAllVacations();
-        final VacationAdapter vacationAdapter = new VacationAdapter(this);
-        RecyclerView recyclerView = findViewById(R.id.vacationRecyclerView);
-        recyclerView.setAdapter(vacationAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        vacationAdapter.setVacations(allVacations);
     }
 }
