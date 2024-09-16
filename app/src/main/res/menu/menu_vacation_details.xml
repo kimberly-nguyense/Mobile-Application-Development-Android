@@ -6,4 +6,6 @@
         android:id="@+id/save_vacation" />
     <item android:title="Delete Vacation"
         android:id="@+id/delete_vacation" />
+    <item android:title="Notify on Date"
+        android:id="@+id/notify_vacation"/>
 </menu>

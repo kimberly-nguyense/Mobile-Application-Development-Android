@@ -1,6 +1,8 @@
 package com.example.d308vacationplanner.ui;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -29,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class VacationDetails extends AppCompatActivity {
     String vacationName;
@@ -179,6 +182,7 @@ public class VacationDetails extends AppCompatActivity {
         Vacation vacation;
         if (item.getItemId() == R.id.save_vacation) {
             if (checkValidDate() == -1){
+                return true;
             }
             // If new vacation, get next vacation ID and create new vacation from input fields
             else if (vacationID == -1 ) {
@@ -195,7 +199,7 @@ public class VacationDetails extends AppCompatActivity {
                         edit_endDate.getText().toString());
                 Toast.makeText(VacationDetails.this, "Adding Vacation", Toast.LENGTH_SHORT).show();
                 repository.insert(vacation);
-                this.finish();
+                return true;
             }
             else{
                 vacation = new Vacation(vacationID,
@@ -205,13 +209,14 @@ public class VacationDetails extends AppCompatActivity {
                         edit_endDate.getText().toString());
                 Toast.makeText(VacationDetails.this, "Updating Vacation", Toast.LENGTH_SHORT).show();
                 repository.update(vacation);
-                this.finish();
+                return true;
             }
         }
         if (item.getItemId() == R.id.delete_vacation) {
             List<Excursion> associatedExcursions = repository.getAssociatedExcursions(vacationID);
             if(!associatedExcursions.isEmpty()){
                 Toast.makeText(VacationDetails.this, "Cannot delete vacation with associated excursions", Toast.LENGTH_SHORT).show();
+                return true;
             }
             else {
                 vacation = new Vacation(vacationID,
@@ -222,10 +227,63 @@ public class VacationDetails extends AppCompatActivity {
                 Toast.makeText(VacationDetails.this, "Deleting Vacation", Toast.LENGTH_SHORT).show();
                 repository.delete(vacation);
                 this.finish();
+                return true;
+            }
+        }
+        if (item.getItemId() == R.id.notify_vacation) {
+            String dateFormat = "MM/dd/yyyy";
+            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
+
+            String start = edit_startDate.getText().toString();
+            String end = edit_endDate.getText().toString();
+
+            Date startDate = null;
+            Date endDate = null;
+            try{
+                startDate = sdf.parse(start);
+                endDate = sdf.parse(end);
+            } catch (ParseException e) {
+                Toast.makeText(VacationDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                return true;
+            }
+            if(startDate == null || endDate == null){
+                Toast.makeText(VacationDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            else {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+                long triggerTime = System.currentTimeMillis() + 60000; // 1 minute from now
+
+                Intent intent = new Intent(VacationDetails.this, MyReceiver.class);
+                PendingIntent sender = PendingIntent.getBroadcast(VacationDetails.this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, sender);
+
+
+                Long triggerTimeStart = startDate.getTime();
+                Intent intentStart = new Intent(VacationDetails.this, MyReceiver.class);
+                intentStart.putExtra("name", vacationName);
+                intentStart.putExtra("date", start);
+                PendingIntent senderStart = PendingIntent.getBroadcast(VacationDetails.this, ++Main.numAlert, intentStart, PendingIntent.FLAG_IMMUTABLE);
+                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTimeStart, senderStart);
+
+                Long triggerTimeEnd = endDate.getTime();
+                Intent intentEnd = new Intent(VacationDetails.this, MyReceiver.class);
+                intentEnd.putExtra("name", vacationName);
+                intentEnd.putExtra("date", end);
+                PendingIntent senderEnd = PendingIntent.getBroadcast(VacationDetails.this, ++Main.numAlert, intentEnd, PendingIntent.FLAG_IMMUTABLE);
+                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTimeEnd, senderEnd);
+                Toast.makeText(VacationDetails.this,
+                        vacationName + " notifications set for " + start + " and " + end,
+                        Toast.LENGTH_SHORT).show();
+                return true;
             }
         }
         if (item.getItemId() == android.R.id.home) {
             finish();
+            return true;
         }
 
         return true;

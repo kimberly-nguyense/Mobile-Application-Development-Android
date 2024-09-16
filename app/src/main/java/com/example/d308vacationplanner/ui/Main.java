@@ -13,6 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.d308vacationplanner.R;
 
 public class Main extends AppCompatActivity {
+    // Increments for every alert notification
+    public static int numAlert = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

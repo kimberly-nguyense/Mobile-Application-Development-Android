@@ -1,6 +1,8 @@
 package com.example.d308vacationplanner.ui;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class ExcursionDetails extends AppCompatActivity {
     Repository repository;
@@ -76,13 +79,12 @@ public class ExcursionDetails extends AppCompatActivity {
 
             Date date;
             String info = editDate.getText().toString();
-            if(info.equals("")){
+            if (info.equals("")) {
                 info = sdf.format(Calendar.getInstance().getTime());
             }
-            try{
+            try {
                 myCalendar.setTime(sdf.parse(info));
-            }
-            catch (ParseException e){
+            } catch (ParseException e) {
                 e.printStackTrace();
             }
             new DatePickerDialog(ExcursionDetails.this,
@@ -114,7 +116,7 @@ public class ExcursionDetails extends AppCompatActivity {
         return true;
     }
 
-    public int checkValidDate(){
+    public int checkValidDate() {
         String dateFormat = "MM/dd/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 
@@ -129,11 +131,11 @@ public class ExcursionDetails extends AppCompatActivity {
             return -1;
         }
 
-        try{
+        try {
             Date date = sdf.parse(excursionDate);
             Date start = sdf.parse(startDate);
             Date end = sdf.parse(endDate);
-            if(date.before(start) || date.after(end)){
+            if (date.before(start) || date.after(end)) {
                 Toast.makeText(ExcursionDetails.this, "Error: Excursion must be between Vacation start and end dates.", Toast.LENGTH_SHORT).show();
                 return -1;
             }
@@ -157,15 +159,39 @@ public class ExcursionDetails extends AppCompatActivity {
 
             Intent shareIntent = Intent.createChooser(intent, null);
             startActivity(shareIntent);
+            return true;
         }
         if (item.getItemId() == R.id.notify_date) {
+            String dateFormat = "MM/dd/yyyy";
+            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
+            String excursionDate = editDate.getText().toString();
 
+            Date date = null;
+            try {
+                date = sdf.parse(excursionDate);
+            } catch (ParseException e) {
+                Toast.makeText(ExcursionDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                return true;
+            }
+
+            Long triggerTime = date.getTime();
+            Intent intent = new Intent(ExcursionDetails.this, MyReceiver.class);
+            intent.putExtra("excursionName", name);
+            intent.putExtra("excursionDate", excursionDate);
+
+            PendingIntent sender = PendingIntent.getBroadcast(ExcursionDetails.this, ++Main.numAlert, intent, PendingIntent.FLAG_IMMUTABLE);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, sender);
+            Toast.makeText(ExcursionDetails.this, name + " notification set for " + excursionDate, Toast.LENGTH_SHORT).show();
+            return true;
         }
         if (item.getItemId() == android.R.id.home) {
             finish();
+            return true;
         }
         if (item.getItemId() == R.id.save_excursion) {
-            if (checkValidDate() == -1){
+            if (checkValidDate() == -1) {
             }
             // If new excursion, get next excursion ID and create new excursion from input fields
             else if (excursionID == -1) {
@@ -180,7 +206,6 @@ public class ExcursionDetails extends AppCompatActivity {
                     );
                     Toast.makeText(ExcursionDetails.this, "Adding Excursion", Toast.LENGTH_SHORT).show();
                     repository.insert(excursion);
-                    this.finish();
                 }
             } else {
                 excursion = new Excursion(excursionID,
@@ -190,8 +215,8 @@ public class ExcursionDetails extends AppCompatActivity {
                 );
                 Toast.makeText(ExcursionDetails.this, "Updating Excursion", Toast.LENGTH_SHORT).show();
                 repository.update(excursion);
-                this.finish();
             }
+            return true;
         }
         if (item.getItemId() == R.id.delete_excursion) {
             excursion = new Excursion(excursionID,
@@ -202,8 +227,8 @@ public class ExcursionDetails extends AppCompatActivity {
             Toast.makeText(ExcursionDetails.this, "Deleting Excursion", Toast.LENGTH_SHORT).show();
             repository.delete(excursion);
             this.finish();
+            return true;
         }
-
         return true;
     }
 }
