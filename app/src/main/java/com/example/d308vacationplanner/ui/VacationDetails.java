@@ -81,6 +81,9 @@ public class VacationDetails extends AppCompatActivity {
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
             intent.putExtra("vacationID", vacationID);
+            intent.putExtra("vacationName", vacationName);
+            intent.putExtra("vacationStart", startDate);
+            intent.putExtra("vacationEnd", endDate);
             startActivity(intent);
         });
 
@@ -199,6 +202,7 @@ public class VacationDetails extends AppCompatActivity {
                         edit_endDate.getText().toString());
                 Toast.makeText(VacationDetails.this, "Adding Vacation", Toast.LENGTH_SHORT).show();
                 repository.insert(vacation);
+                onResume();
                 return true;
             }
             else{
@@ -209,6 +213,7 @@ public class VacationDetails extends AppCompatActivity {
                         edit_endDate.getText().toString());
                 Toast.makeText(VacationDetails.this, "Updating Vacation", Toast.LENGTH_SHORT).show();
                 repository.update(vacation);
+                this.finish();
                 return true;
             }
         }
@@ -234,6 +239,7 @@ public class VacationDetails extends AppCompatActivity {
             String dateFormat = "MM/dd/yyyy";
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
 
+            vacationName = edit_vacationName.getText().toString();
             String start = edit_startDate.getText().toString();
             String end = edit_endDate.getText().toString();
 
@@ -278,6 +284,7 @@ public class VacationDetails extends AppCompatActivity {
                 Toast.makeText(VacationDetails.this,
                         vacationName + " notifications set for " + start + " and " + end,
                         Toast.LENGTH_SHORT).show();
+                onResume();
                 return true;
             }
         }
@@ -285,7 +292,6 @@ public class VacationDetails extends AppCompatActivity {
             finish();
             return true;
         }
-
         return true;
     }
     @Override

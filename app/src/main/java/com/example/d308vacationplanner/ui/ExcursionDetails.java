@@ -166,6 +166,9 @@ public class ExcursionDetails extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
             String excursionDate = editDate.getText().toString();
 
+            name = editName.getText().toString();
+            excursionDate = editDate.getText().toString();
+
             Date date = null;
             try {
                 date = sdf.parse(excursionDate);
@@ -184,8 +187,8 @@ public class ExcursionDetails extends AppCompatActivity {
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, sender);
             Toast.makeText(ExcursionDetails.this, name + " notification set for " + excursionDate, Toast.LENGTH_SHORT).show();
-            return true;
-        }
+            this.finish();
+            return true;        }
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
@@ -206,6 +209,8 @@ public class ExcursionDetails extends AppCompatActivity {
                     );
                     Toast.makeText(ExcursionDetails.this, "Adding Excursion", Toast.LENGTH_SHORT).show();
                     repository.insert(excursion);
+                    this.finish();
+                    return true;
                 }
             } else {
                 excursion = new Excursion(excursionID,
@@ -215,8 +220,9 @@ public class ExcursionDetails extends AppCompatActivity {
                 );
                 Toast.makeText(ExcursionDetails.this, "Updating Excursion", Toast.LENGTH_SHORT).show();
                 repository.update(excursion);
+                this.finish();
+                return true;
             }
-            return true;
         }
         if (item.getItemId() == R.id.delete_excursion) {
             excursion = new Excursion(excursionID,
