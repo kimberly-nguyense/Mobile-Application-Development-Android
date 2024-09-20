@@ -60,13 +60,22 @@ public class VacationList extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.delete_all_data) {
+            repository = new Repository(getApplication());
+            repository.deleteAll();
+            Toast.makeText(VacationList.this, "All Data Deleted", Toast.LENGTH_SHORT).show();
+            onResume();
+        }
         if (item.getItemId() == R.id.add_sample_data) {
             repository = new Repository(getApplication());
             Vacation vacation = new Vacation(0, "Dallas", "Marriott", "05/23/2024", "06/15/2024");
-            repository.insert(vacation);
+            int vacationID = (int) repository.insert(vacation);
+            Excursion excursion = new Excursion(0, "Art Gallery", "09/20/2024", vacationID, "Art Gallery of Dallas");
+            repository.insert(excursion);
+
             vacation = new Vacation(0, "Carrollton", "Courtyard", "05/23/2024", "06/15/2024");
-            repository.insert(vacation);
-            Excursion excursion = new Excursion(0, "Museum", "05/23/2024", 1, "Museum of Art");
+            vacationID = (int) repository.insert(vacation);
+            excursion = new Excursion(0, "Museum", "05/23/2024", vacationID, "Museum of Art");
             repository.insert(excursion);
             Toast.makeText(VacationList.this, "Sample Data Added", Toast.LENGTH_SHORT).show();
             onResume();

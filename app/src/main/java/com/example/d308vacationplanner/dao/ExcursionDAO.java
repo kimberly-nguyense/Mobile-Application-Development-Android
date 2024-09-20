@@ -27,4 +27,10 @@ public interface ExcursionDAO {
 
     @Query("SELECT * FROM Excursions WHERE vacationID = :prod ORDER BY excursionID ASC")
     List<Excursion> getAssociatedExcursions(int prod);
+
+    @Query("DELETE FROM Excursions")
+    void deleteAll();
+
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'Excursions'")
+    void resetExcursionIdGenerator();
 }

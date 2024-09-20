@@ -44,15 +44,17 @@ public class Repository {
         return mVacationDAO.getVacation(vacationID);
     }
 
-    public void insert(Vacation vacation){
+    public long insert(Vacation vacation){
+        final long[] vacationID = new long[1];
         databaseWriteExecutor.execute(() -> {
-            mVacationDAO.insert(vacation);
+            vacationID[0] = mVacationDAO.insert(vacation);
         });
         try{
             Thread.sleep(1000);
         }catch (InterruptedException e){
             e.printStackTrace();
         }
+        return vacationID[0];
     }
 
     public void update(Vacation vacation){
@@ -125,6 +127,21 @@ public class Repository {
     public void delete(Excursion excursion){
         databaseWriteExecutor.execute(() -> {
             mExcursionDAO.delete(excursion);
+        });
+        try{
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteAll() {
+        databaseWriteExecutor.execute(() -> {
+            mVacationDAO.deleteAll();
+            mExcursionDAO.deleteAll();
+
+            mVacationDAO.resetVacationIdGenerator();
+            mExcursionDAO.resetExcursionIdGenerator();
         });
         try{
             Thread.sleep(1000);

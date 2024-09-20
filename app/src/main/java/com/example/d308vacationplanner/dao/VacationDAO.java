@@ -14,7 +14,7 @@ import java.util.List;
 @Dao
 public interface VacationDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insert(Vacation vacation);
+    long insert(Vacation vacation);
 
     @Update
     void update(Vacation vacation);
@@ -27,4 +27,10 @@ public interface VacationDAO {
 
     @Query("SELECT * FROM Vacations WHERE vacationID = :vacationID")
     Vacation getVacation(int vacationID);
+
+    @Query("DELETE FROM Vacations")
+    void deleteAll();
+
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'Vacations'")
+    void resetVacationIdGenerator();
 }

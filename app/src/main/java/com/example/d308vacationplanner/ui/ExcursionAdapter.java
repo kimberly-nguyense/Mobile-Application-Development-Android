@@ -21,9 +21,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.ExcursionViewHolder> {
-    private final String vacationName;
-    private final String vacationStart;
-    private final String vacationEnd;
+    private String vacationName;
+    private String vacationStart;
+    private String vacationEnd;
     private List<Excursion> mExcursions;
     private final Context context;
     private final LayoutInflater mInflater;
@@ -56,6 +56,7 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
                 intent.putExtra("excursionDate", excursion.getExcursionDate());
                 intent.putExtra("vacationID", excursion.getVacationID());
                 intent.putExtra("excursionNote", excursion.getNote());
+                vacationName = ((Activity) context).getIntent().getStringExtra("vacationName");
                 intent.putExtra("vacationName", vacationName);
                 intent.putExtra("vacationStart", vacationStart);
                 intent.putExtra("vacationEnd", vacationEnd);

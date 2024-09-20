@@ -254,7 +254,6 @@ public class VacationDetails extends AppCompatActivity {
                 repository.update(vacation);
             }
             isVacationSaved = true;
-            onResume();
             return true;
         }
         if (item.getItemId() == R.id.delete_vacation) {
