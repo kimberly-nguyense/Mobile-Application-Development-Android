@@ -4,6 +4,8 @@ import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,9 +34,9 @@ import java.util.Locale;
 
 public class ExcursionDetails extends AppCompatActivity {
     Repository repository;
-    String name;
-    String date;
-    String note;
+    String excursionName;
+    String excursionDate;
+    String excursionNote;
     int excursionID;
     int vacationID;
     String vacationName;
@@ -60,25 +62,30 @@ public class ExcursionDetails extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        vacationName = getIntent().getStringExtra("vacationName");
-        vacationStart = getIntent().getStringExtra("vacationStart");
-        vacationEnd = getIntent().getStringExtra("vacationEnd");
-
         repository = new Repository(getApplication());
-        name = getIntent().getStringExtra("excursionName");
-        date = getIntent().getStringExtra("excursionDate");
-        note = getIntent().getStringExtra("excursionNote");
-        excursionID = getIntent().getIntExtra("excursionID", -1);
-        vacationID = getIntent().getIntExtra("vacationID", -1);
+        // Get input fields
         editVacationName = findViewById(R.id.edit_vacationName);
         editName = findViewById(R.id.edit_excursionName);
         editDate = findViewById(R.id.edit_excursionDate);
         editNote = findViewById(R.id.edit_excursionNote);
-        editVacationName.setText(vacationName);
-        editName.setText(name);
-        editDate.setText(date);
-        editNote.setText(note);
+        // Get passed values
+        vacationID = getIntent().getIntExtra("vacationID", -1);
+        vacationName = getIntent().getStringExtra("vacationName");
+        vacationStart = getIntent().getStringExtra("vacationStart");
+        vacationEnd = getIntent().getStringExtra("vacationEnd");
 
+        excursionID = getIntent().getIntExtra("excursionID", -1);
+        excursionName = getIntent().getStringExtra("excursionName");
+        excursionDate = getIntent().getStringExtra("excursionDate");
+        excursionNote = getIntent().getStringExtra("excursionNote");
+        // Check if excursion has been saved
+        isExcursionSaved = getIntent().getBooleanExtra("isExcursionSaved", false);
+        editVacationName.addTextChangedListener(textWatcher);
+        editName.addTextChangedListener(textWatcher);
+        editDate.addTextChangedListener(textWatcher);
+        editNote.addTextChangedListener(textWatcher);
+        // Set input fields
+        setVacationDetailsWithoutTriggeringTextWatcher();
 
         if(excursionID != -1){
             isExcursionSaved = true;
@@ -121,6 +128,37 @@ public class ExcursionDetails extends AppCompatActivity {
         editDate.setText(sdf.format(myCalendar.getTime()));
     }
 
+    private void setVacationDetailsWithoutTriggeringTextWatcher() {
+        editVacationName.removeTextChangedListener(textWatcher);
+        editName.removeTextChangedListener(textWatcher);
+        editDate.removeTextChangedListener(textWatcher);
+        editNote.removeTextChangedListener(textWatcher);
+
+        editVacationName.setText(vacationName);
+        editName.setText(excursionName);
+        editDate.setText(excursionDate);
+        editNote.setText(excursionNote);
+
+        editVacationName.addTextChangedListener(textWatcher);
+        editName.addTextChangedListener(textWatcher);
+        editDate.addTextChangedListener(textWatcher);
+        editNote.addTextChangedListener(textWatcher);
+    }
+
+    private final TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            isExcursionSaved = false;
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    };
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_excursion_details, menu);
@@ -132,8 +170,8 @@ public class ExcursionDetails extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 
         String excursionDate = editDate.getText().toString();
-        String startDate = vacationStart;
-        String endDate = vacationEnd;
+        String startDate = getIntent().getStringExtra("vacationStart");
+        String endDate = getIntent().getStringExtra("vacationEnd");
         if (excursionDate == null || excursionDate.isEmpty() ||
                 startDate == null || startDate.isEmpty() ||
                 endDate == null || endDate.isEmpty()) {
@@ -174,16 +212,13 @@ public class ExcursionDetails extends AppCompatActivity {
                     excursionID = 1;
                 } else {
                     excursionID = repository.getmAllExcursions().get(repository.getmAllExcursions().size() - 1).getExcursionID() + 1;
-                    excursion = new Excursion(excursionID,
-                            editName.getText().toString(),
-                            editDate.getText().toString(), vacationID,
-                            editNote.getText().toString()
-                    );
-                    Toast.makeText(ExcursionDetails.this, "Adding Excursion", Toast.LENGTH_SHORT).show();
-                    repository.insert(excursion);
-                    isExcursionSaved = true;
-                    return true;
                 }
+                excursion = new Excursion(excursionID,
+                        editName.getText().toString(),
+                        editDate.getText().toString(), vacationID,
+                        editNote.getText().toString());
+                Toast.makeText(ExcursionDetails.this, "Adding Excursion", Toast.LENGTH_SHORT).show();
+                repository.insert(excursion);
             } else {
                 excursion = new Excursion(excursionID,
                         editName.getText().toString(),
@@ -192,9 +227,9 @@ public class ExcursionDetails extends AppCompatActivity {
                 );
                 Toast.makeText(ExcursionDetails.this, "Updating Excursion", Toast.LENGTH_SHORT).show();
                 repository.update(excursion);
-                isExcursionSaved = true;
-                return true;
             }
+            isExcursionSaved = true;
+            return true;
         }
         if (item.getItemId() == R.id.delete_excursion) {
             if(isExcursionSaved == false){
@@ -211,23 +246,6 @@ public class ExcursionDetails extends AppCompatActivity {
             this.finish();
             return true;
         }
-        if (item.getItemId() == R.id.share_details) {
-            if(isExcursionSaved == false){
-                Toast.makeText(ExcursionDetails.this, "Cannot share excursion that has not been saved", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            if (checkValidDate() == -1) {
-                return true;
-            }
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.putExtra(Intent.EXTRA_TEXT, "Excursion Name: " + name + "\nExcursion Date: " + date + "\n\n"+editNote.getText().toString()
-                     );
-            intent.setType("text/plain");
-
-            Intent shareIntent = Intent.createChooser(intent, null);
-            startActivity(shareIntent);
-            return true;
-        }
         if (item.getItemId() == R.id.notify_date) {
             if(isExcursionSaved == false){
                 Toast.makeText(ExcursionDetails.this, "Cannot notify excursion that has not been saved", Toast.LENGTH_SHORT).show();
@@ -238,10 +256,13 @@ public class ExcursionDetails extends AppCompatActivity {
             }
             String dateFormat = "MM/dd/yyyy";
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
-            String excursionDate = editDate.getText().toString();
 
-            name = editName.getText().toString();
             excursionDate = editDate.getText().toString();
+
+            if (excursionDate == null || excursionDate.isEmpty()){
+                Toast.makeText(ExcursionDetails.this, "Date fields cannot be empty", Toast.LENGTH_SHORT).show();
+                return true;
+            }
 
             Date date = null;
             try {
@@ -254,13 +275,13 @@ public class ExcursionDetails extends AppCompatActivity {
 
             Long triggerTime = date.getTime();
             Intent intent = new Intent(ExcursionDetails.this, MyReceiver.class);
-            intent.putExtra("excursionName", name);
-            intent.putExtra("excursionDate", excursionDate);
+            intent.putExtra("name", editName.getText().toString());
+            intent.putExtra("date", editDate.getText().toString());
 
             PendingIntent sender = PendingIntent.getBroadcast(ExcursionDetails.this, ++Main.numAlert, intent, PendingIntent.FLAG_IMMUTABLE);
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, sender);
-            Toast.makeText(ExcursionDetails.this, name + " notification set for " + excursionDate, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ExcursionDetails.this, editName.getText().toString() + " notification set for " + editDate.getText().toString(), Toast.LENGTH_SHORT).show();
             return true;        }
         if (item.getItemId() == android.R.id.home) {
             finish();

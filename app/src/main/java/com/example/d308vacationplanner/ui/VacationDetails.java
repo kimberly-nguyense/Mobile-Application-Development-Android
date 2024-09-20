@@ -90,9 +90,9 @@ public class VacationDetails extends AppCompatActivity {
             } else {
                 Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
                 intent.putExtra("vacationID", vacationID);
-                intent.putExtra("vacationName", vacationName);
-                intent.putExtra("vacationStart", vacationStart);
-                intent.putExtra("vacationEnd", vacationEnd);
+                intent.putExtra("vacationName", edit_vacationName.getText().toString());
+                intent.putExtra("vacationStart", edit_startDate.getText().toString());
+                intent.putExtra("vacationEnd", edit_endDate.getText().toString());
                 startActivity(intent);
             }
         });
@@ -287,9 +287,14 @@ public class VacationDetails extends AppCompatActivity {
             }
             Intent intent = new Intent(Intent.ACTION_SEND);
             StringBuilder builder = new StringBuilder();
-            builder.append("Vacation Name: " + vacationName + "\nVacation Date: " + vacationStart + " - " + vacationEnd + "\n\n");
-            for (Excursion excursion : repository.getAssociatedExcursions(vacationID)) {
-                builder.append("Excursion Name: " + excursion.getExcursionName() + "\nExcursion Date: " + excursion.getExcursionDate() + "\n\n");
+            builder.append("Vacation Name: " + edit_vacationName.getText().toString() + "\nVacation Date: " + edit_startDate.getText().toString() + " - " + edit_endDate.getText().toString() + "\n\n");
+            if (repository.getAssociatedExcursions(vacationID).isEmpty()) {
+                builder.append("No excursions associated with this vacation");
+            }
+            else{
+                for (Excursion excursion : repository.getAssociatedExcursions(vacationID)) {
+                    builder.append("Excursion Name: " + excursion.getExcursionName() + "\nExcursion Date: " + excursion.getExcursionDate() + "\n\n");
+                }
             }
             intent.putExtra(Intent.EXTRA_TEXT, builder.toString());
             intent.setType("text/plain");
@@ -306,15 +311,11 @@ public class VacationDetails extends AppCompatActivity {
             String dateFormat = "MM/dd/yyyy";
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
 
-            vacationName = edit_vacationName.getText().toString();
-            String start = edit_startDate.getText().toString();
-            String end = edit_endDate.getText().toString();
-
             Date startDate = null;
             Date endDate = null;
             try {
-                startDate = sdf.parse(start);
-                endDate = sdf.parse(end);
+                startDate = sdf.parse(edit_startDate.getText().toString());
+                endDate = sdf.parse(edit_endDate.getText().toString());
             } catch (ParseException e) {
                 Toast.makeText(VacationDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
@@ -336,19 +337,19 @@ public class VacationDetails extends AppCompatActivity {
 
                 Long triggerTimeStart = startDate.getTime();
                 Intent intentStart = new Intent(VacationDetails.this, MyReceiver.class);
-                intentStart.putExtra("name", vacationName);
-                intentStart.putExtra("date", start);
+                intentStart.putExtra("name", edit_vacationName.getText().toString());
+                intentStart.putExtra("date", edit_startDate.getText().toString());
                 PendingIntent senderStart = PendingIntent.getBroadcast(VacationDetails.this, ++Main.numAlert, intentStart, PendingIntent.FLAG_IMMUTABLE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTimeStart, senderStart);
 
                 Long triggerTimeEnd = endDate.getTime();
                 Intent intentEnd = new Intent(VacationDetails.this, MyReceiver.class);
-                intentEnd.putExtra("name", vacationName);
-                intentEnd.putExtra("date", end);
+                intentEnd.putExtra("name", edit_vacationName.getText().toString());
+                intentEnd.putExtra("date", edit_endDate.getText().toString());
                 PendingIntent senderEnd = PendingIntent.getBroadcast(VacationDetails.this, ++Main.numAlert, intentEnd, PendingIntent.FLAG_IMMUTABLE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTimeEnd, senderEnd);
                 Toast.makeText(VacationDetails.this,
-                        vacationName + " notifications set for " + start + " and " + end,
+                        edit_vacationName.getText().toString() +  " notifications set for " + edit_startDate.getText().toString() + " and " + edit_endDate.getText().toString(),
                         Toast.LENGTH_SHORT).show();
                 onResume();
                 return true;
