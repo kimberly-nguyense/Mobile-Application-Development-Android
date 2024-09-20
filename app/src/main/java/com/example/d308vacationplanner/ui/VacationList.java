@@ -25,7 +25,6 @@ import java.util.List;
 public class VacationList extends AppCompatActivity {
     private Repository repository;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +35,11 @@ public class VacationList extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         FloatingActionButton fab = findViewById(R.id.floatingActionButton_addVacation);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(VacationList.this, VacationDetails.class);
+            intent.putExtra("isVacationSaved", false); // Starting a new vacation
             startActivity(intent);
         });
 
@@ -50,6 +51,7 @@ public class VacationList extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         vacationAdapter.setVacations(allVacations);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_vacation_list, menu);
@@ -58,36 +60,22 @@ public class VacationList extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.refresh) {
-            Toast.makeText(VacationList.this, "Refreshed", Toast.LENGTH_SHORT).show();
-            onResume();
-        }
         if (item.getItemId() == R.id.add_sample_data) {
             repository = new Repository(getApplication());
-
-            Vacation vacation = new Vacation(0,"Dallas","Marriott","05/23/2024", "06/15/2024");
+            Vacation vacation = new Vacation(0, "Dallas", "Marriott", "05/23/2024", "06/15/2024");
             repository.insert(vacation);
-            vacation = new Vacation(0,"Carrollton","Courtyard", "05/23/2024", "06/15/2024");
+            vacation = new Vacation(0, "Carrollton", "Courtyard", "05/23/2024", "06/15/2024");
             repository.insert(vacation);
-
-            Excursion excursion = new Excursion(0,"Museum","05/23/2024",1,"Museum of Art");
+            Excursion excursion = new Excursion(0, "Museum", "05/23/2024", 1, "Museum of Art");
             repository.insert(excursion);
-            excursion = new Excursion(0,"Art Gallery","06/15/2024",1, "Art Gallery of Dallas");
-            repository.insert(excursion);
-            excursion = new Excursion(0,"KBBQ","05/28/2024",2, "Gen's KBBQ");
-            repository.insert(excursion);
-
             Toast.makeText(VacationList.this, "Sample Data Added", Toast.LENGTH_SHORT).show();
             onResume();
         }
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-        }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
+
     @Override
     protected void onResume() {
-        // After updating VacationDetails, refresh VacationList
         super.onResume();
         List<Vacation> allVacations = repository.getmAllVacations();
         final VacationAdapter vacationAdapter = new VacationAdapter(this);

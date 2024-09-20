@@ -27,11 +27,13 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
 
     public class VacationViewHolder extends RecyclerView.ViewHolder {
         private final TextView vacationItemView;
+        private final TextView vacationItemView2;
 
         public VacationViewHolder(@NonNull View itemView) {
             super(itemView);
-            vacationItemView = itemView.findViewById(R.id.textView3);
-            vacationItemView.setOnClickListener(view -> {
+            vacationItemView = itemView.findViewById(R.id.textView1);
+            vacationItemView2 = itemView.findViewById(R.id.textView3);
+            itemView.setOnClickListener(view -> {
                 int position = getAdapterPosition();
                 final Vacation vacation = mVacations.get(position);
                 Intent intent = new Intent(context, VacationDetails.class);
@@ -41,6 +43,7 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
                 intent.putExtra("vacationStartDate", vacation.getStartDate());
                 intent.putExtra("vacationEndDate", vacation.getEndDate());
                 intent.putExtra("vacationID", vacation.getVacationID());
+                intent.putExtra("isVacationSaved", true);
                 context.startActivity(intent);
             });
         }
@@ -57,8 +60,10 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
         if(mVacations != null) {
             Vacation current = mVacations.get(position);
             holder.vacationItemView.setText(current.getVacationName());
+            holder.vacationItemView2.setText(current.getStartDate() + " - " + current.getEndDate());
         } else {
             holder.vacationItemView.setText("No Vacation Name");
+            holder.vacationItemView2.setText("No Vacation Date");
         }
     }
 

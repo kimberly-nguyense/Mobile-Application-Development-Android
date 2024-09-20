@@ -5,6 +5,8 @@ import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.DatePicker;
@@ -36,14 +38,15 @@ import java.util.Locale;
 public class VacationDetails extends AppCompatActivity {
     String vacationName;
     String hotelName;
-    String startDate;
-    String endDate;
+    String vacationStart;
+    String vacationEnd;
     int vacationID;
     EditText edit_vacationName;
     EditText edit_hotelName;
     TextView edit_startDate;
     TextView edit_endDate;
     Repository repository;
+    boolean isVacationSaved = false;
 
     DatePickerDialog.OnDateSetListener startDateListener;
     DatePickerDialog.OnDateSetListener endDateListener;
@@ -68,29 +71,36 @@ public class VacationDetails extends AppCompatActivity {
         // Get clicked vacation details
         vacationName = getIntent().getStringExtra("vacationName");
         hotelName = getIntent().getStringExtra("vacationHotelName");
-        startDate = getIntent().getStringExtra("vacationStartDate");
-        endDate = getIntent().getStringExtra("vacationEndDate");
+        vacationStart = getIntent().getStringExtra("vacationStartDate");
+        vacationEnd = getIntent().getStringExtra("vacationEndDate");
         vacationID = getIntent().getIntExtra("vacationID", -1);
+        // Check if vacation has been saved
+        isVacationSaved = getIntent().getBooleanExtra("isVacationSaved", false);
+        edit_vacationName.addTextChangedListener(textWatcher);
+        edit_hotelName.addTextChangedListener(textWatcher);
+        edit_startDate.addTextChangedListener(textWatcher);
+        edit_endDate.addTextChangedListener(textWatcher);
         // Set input fields
-        edit_vacationName.setText(vacationName);
-        edit_hotelName.setText(hotelName);
-        edit_startDate.setText(startDate);
-        edit_endDate.setText(endDate);
+        setVacationDetailsWithoutTriggeringTextWatcher();
 
         FloatingActionButton fab = findViewById(R.id.floatingActionButton_addExcursion);
         fab.setOnClickListener(view -> {
-            Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
-            intent.putExtra("vacationID", vacationID);
-            intent.putExtra("vacationName", vacationName);
-            intent.putExtra("vacationStart", startDate);
-            intent.putExtra("vacationEnd", endDate);
-            startActivity(intent);
+            if (!isVacationSaved) {
+                Toast.makeText(VacationDetails.this, "Please save the vacation before adding an excursion.", Toast.LENGTH_SHORT).show();
+            } else {
+                Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
+                intent.putExtra("vacationID", vacationID);
+                intent.putExtra("vacationName", vacationName);
+                intent.putExtra("vacationStart", vacationStart);
+                intent.putExtra("vacationEnd", vacationEnd);
+                startActivity(intent);
+            }
         });
 
         // Set up Recycler View to show excursions associated with vacation
         RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
         repository = new Repository(getApplication());
-        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this, repository);
+        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this, repository, vacationName, vacationStart, vacationEnd);
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         List<Excursion> filteredExcursions = repository.getAssociatedExcursions(vacationID);
@@ -141,11 +151,42 @@ public class VacationDetails extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
         edit_startDate.setText(sdf.format(myCalendar.getTime()));
     }
+
     public void updateLabelEndDate() {
         String dateFormat = "MM/dd/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
         edit_endDate.setText(sdf.format(myCalendar.getTime()));
     }
+
+    private void setVacationDetailsWithoutTriggeringTextWatcher() {
+        edit_vacationName.removeTextChangedListener(textWatcher);
+        edit_hotelName.removeTextChangedListener(textWatcher);
+        edit_startDate.removeTextChangedListener(textWatcher);
+        edit_endDate.removeTextChangedListener(textWatcher);
+
+        edit_vacationName.setText(vacationName);
+        edit_hotelName.setText(hotelName);
+        edit_startDate.setText(vacationStart);
+        edit_endDate.setText(vacationEnd);
+
+        edit_vacationName.addTextChangedListener(textWatcher);
+        edit_hotelName.addTextChangedListener(textWatcher);
+        edit_startDate.addTextChangedListener(textWatcher);
+        edit_endDate.addTextChangedListener(textWatcher);
+    }
+
+    private final TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            isVacationSaved = false;
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -153,22 +194,22 @@ public class VacationDetails extends AppCompatActivity {
         return true;
     }
 
-    public int checkValidDate(){
+    public int checkValidDate() {
         String dateFormat = "MM/dd/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 
         String startDate = edit_startDate.getText().toString();
         String endDate = edit_endDate.getText().toString();
 
-        if(startDate == null || startDate.isEmpty() || endDate == null || endDate.isEmpty()){
+        if (startDate == null || startDate.isEmpty() || endDate == null || endDate.isEmpty()) {
             Toast.makeText(VacationDetails.this, "Date fields cannot be empty", Toast.LENGTH_SHORT).show();
             return -1;
         }
 
-        try{
+        try {
             Date start = sdf.parse(startDate);
             Date end = sdf.parse(endDate);
-            if(start.after(end)){
+            if (start.after(end)) {
                 Toast.makeText(VacationDetails.this, "Error: Start date must be before end date", Toast.LENGTH_SHORT).show();
                 return -1;
             }
@@ -176,7 +217,6 @@ public class VacationDetails extends AppCompatActivity {
             Toast.makeText(VacationDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
             return -1;
         }
-        Toast.makeText(VacationDetails.this, "Saving Vacation", Toast.LENGTH_SHORT).show();
         return 0;
     }
 
@@ -184,15 +224,17 @@ public class VacationDetails extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Vacation vacation;
         if (item.getItemId() == R.id.save_vacation) {
-            if (checkValidDate() == -1){
+            if (checkValidDate() == -1) {
+                return true;
+            }else if (edit_vacationName.getText().toString().isEmpty()) {
+                Toast.makeText(VacationDetails.this, "Vacation name cannot be empty", Toast.LENGTH_SHORT).show();
                 return true;
             }
             // If new vacation, get next vacation ID and create new vacation from input fields
-            else if (vacationID == -1 ) {
+            else if (vacationID == -1) {
                 if (repository.getmAllVacations().size() == 0) {
                     vacationID = 1;
-                }
-                else {
+                } else {
                     vacationID = repository.getmAllVacations().get(repository.getmAllVacations().size() - 1).getVacationID() + 1;
                 }
                 vacation = new Vacation(vacationID,
@@ -202,10 +244,7 @@ public class VacationDetails extends AppCompatActivity {
                         edit_endDate.getText().toString());
                 Toast.makeText(VacationDetails.this, "Adding Vacation", Toast.LENGTH_SHORT).show();
                 repository.insert(vacation);
-                onResume();
-                return true;
-            }
-            else{
+            } else {
                 vacation = new Vacation(vacationID,
                         edit_vacationName.getText().toString(),
                         edit_hotelName.getText().toString(),
@@ -213,17 +252,21 @@ public class VacationDetails extends AppCompatActivity {
                         edit_endDate.getText().toString());
                 Toast.makeText(VacationDetails.this, "Updating Vacation", Toast.LENGTH_SHORT).show();
                 repository.update(vacation);
-                this.finish();
-                return true;
             }
+            isVacationSaved = true;
+            onResume();
+            return true;
         }
         if (item.getItemId() == R.id.delete_vacation) {
-            List<Excursion> associatedExcursions = repository.getAssociatedExcursions(vacationID);
-            if(!associatedExcursions.isEmpty()){
-                Toast.makeText(VacationDetails.this, "Cannot delete vacation with associated excursions", Toast.LENGTH_SHORT).show();
+            if (isVacationSaved == false) {
+                Toast.makeText(VacationDetails.this, "Cannot delete vacation that has not been saved", Toast.LENGTH_SHORT).show();
                 return true;
             }
-            else {
+            List<Excursion> associatedExcursions = repository.getAssociatedExcursions(vacationID);
+            if (!associatedExcursions.isEmpty()) {
+                Toast.makeText(VacationDetails.this, "Cannot delete vacation with associated excursions", Toast.LENGTH_SHORT).show();
+                return true;
+            } else {
                 vacation = new Vacation(vacationID,
                         edit_vacationName.getText().toString(),
                         edit_hotelName.getText().toString(),
@@ -235,7 +278,32 @@ public class VacationDetails extends AppCompatActivity {
                 return true;
             }
         }
+        if (item.getItemId() == R.id.share_details) {
+            if (isVacationSaved == false) {
+                Toast.makeText(VacationDetails.this, "Cannot share vacation that has not been saved", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            if (checkValidDate() == -1) {
+                return true;
+            }
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            StringBuilder builder = new StringBuilder();
+            builder.append("Vacation Name: " + vacationName + "\nVacation Date: " + vacationStart + " - " + vacationEnd + "\n\n");
+            for (Excursion excursion : repository.getAssociatedExcursions(vacationID)) {
+                builder.append("Excursion Name: " + excursion.getExcursionName() + "\nExcursion Date: " + excursion.getExcursionDate() + "\n\n");
+            }
+            intent.putExtra(Intent.EXTRA_TEXT, builder.toString());
+            intent.setType("text/plain");
+
+            Intent shareIntent = Intent.createChooser(intent, null);
+            startActivity(shareIntent);
+            return true;
+        }
         if (item.getItemId() == R.id.notify_vacation) {
+            if (isVacationSaved == false) {
+                Toast.makeText(VacationDetails.this, "Cannot notify vacation that has not been saved", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             String dateFormat = "MM/dd/yyyy";
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
 
@@ -245,7 +313,7 @@ public class VacationDetails extends AppCompatActivity {
 
             Date startDate = null;
             Date endDate = null;
-            try{
+            try {
                 startDate = sdf.parse(start);
                 endDate = sdf.parse(end);
             } catch (ParseException e) {
@@ -253,11 +321,10 @@ public class VacationDetails extends AppCompatActivity {
                 e.printStackTrace();
                 return true;
             }
-            if(startDate == null || endDate == null){
+            if (startDate == null || endDate == null) {
                 Toast.makeText(VacationDetails.this, "Invalid date format. Please use MM/DD/YYYY", Toast.LENGTH_SHORT).show();
                 return true;
-            }
-            else {
+            } else {
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
                 long triggerTime = System.currentTimeMillis() + 60000; // 1 minute from now
@@ -294,12 +361,13 @@ public class VacationDetails extends AppCompatActivity {
         }
         return true;
     }
+
     @Override
     protected void onResume() {
-        // After updating ExcursionDetails, refresh ExcursionDetails
+        // After updating Vacation details, refresh VacationDetails
         super.onResume();
         List<Excursion> filteredExcursions = repository.getAssociatedExcursions(vacationID);
-        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this, repository);
+        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this, repository, vacationName, vacationStart, vacationEnd);
         RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

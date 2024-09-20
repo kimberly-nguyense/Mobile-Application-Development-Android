@@ -21,16 +21,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.ExcursionViewHolder> {
+    private final String vacationName;
+    private final String vacationStart;
+    private final String vacationEnd;
     private List<Excursion> mExcursions;
     private final Context context;
     private final LayoutInflater mInflater;
     private final Repository repository;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public ExcursionAdapter(Context context, Repository repository) {
+    public ExcursionAdapter(Context context, Repository repository, String vacationName, String vacationStart, String vacationEnd) {
         mInflater = LayoutInflater.from(context);
         this.context = context;
         this.repository = repository;
+        this.vacationStart = vacationStart;
+        this.vacationEnd = vacationEnd;
+        this.vacationName = vacationName;
     }
 
     public class ExcursionViewHolder extends RecyclerView.ViewHolder {
@@ -50,17 +56,11 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
                 intent.putExtra("excursionDate", excursion.getExcursionDate());
                 intent.putExtra("vacationID", excursion.getVacationID());
                 intent.putExtra("excursionNote", excursion.getNote());
-                executorService.execute(() -> {
-                    Vacation vacation = repository.getVacation(excursion.getVacationID());
-                    if (vacation != null) {
-                        String vacationStartDate = vacation.getStartDate();
-                        String vacationEndDate = vacation.getEndDate();
-                        intent.putExtra("vacationStart", vacationStartDate);
-                        intent.putExtra("vacationEnd", vacationEndDate);
-                    }
-                    // Start activity after getting the vacation
-                    ((Activity) context).runOnUiThread(() -> context.startActivity(intent));
-                });
+                intent.putExtra("vacationName", vacationName);
+                intent.putExtra("vacationStart", vacationStart);
+                intent.putExtra("vacationEnd", vacationEnd);
+                intent.putExtra("isExcursionSaved", true);
+                context.startActivity(intent);
             });
         }
     }
@@ -81,6 +81,7 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
         } else {
             holder.excursionItemView.setText("No Excursion Name");
             holder.excursionItemView2.setText("No Excursion Date");
+
         }
     }
 
