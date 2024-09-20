@@ -70,7 +70,7 @@ public class VacationList extends AppCompatActivity {
             repository = new Repository(getApplication());
             Vacation vacation = new Vacation(0, "Dallas", "Marriott", "05/23/2024", "06/15/2024");
             int vacationID = (int) repository.insert(vacation);
-            Excursion excursion = new Excursion(0, "Art Gallery", "09/20/2024", vacationID, "Art Gallery of Dallas");
+            Excursion excursion = new Excursion(0, "Art Gallery", "05/23/2024", vacationID, "Art Gallery of Dallas");
             repository.insert(excursion);
 
             vacation = new Vacation(0, "Carrollton", "Courtyard", "05/23/2024", "06/15/2024");
